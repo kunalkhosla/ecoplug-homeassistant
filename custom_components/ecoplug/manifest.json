@@ -1,11 +1,13 @@
 {
   "domain": "ecoplug",
   "name": "ECO Plug (local UDP)",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "documentation": "https://github.com/kunalkhosla/ecoplug-homeassistant",
   "issue_tracker": "https://github.com/kunalkhosla/ecoplug-homeassistant/issues",
   "codeowners": ["@kunalkhosla"],
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "config_flow": false,
   "dependencies": [],
-  "requirements": [],
-  "iot_class": "local_polling"
+  "requirements": []
 }
