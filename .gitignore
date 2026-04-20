@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.idea/
+.vscode/
+.DS_Store
+
+# Don't commit raw captures by default — they may contain tokens or private IPs.
+# Commit sanitized/redacted captures explicitly after review.
+captures/*.pcap
+captures/*.pcapng
+captures/*.log
+!captures/.gitkeep
