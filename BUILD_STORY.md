@@ -1,5 +1,7 @@
 # How this integration was built
 
+> Also published as a blog post: **[Cracking a pool pump's Wi-Fi protocol in an afternoon](https://kunalkhosla.github.io/blogs/2026/04/20/ecoplug-pool-pump.html)**
+
 This integration was reverse-engineered and implemented in a **single ~3-hour session** on 2026-04-20, collaborating with [Claude Code](https://claude.com/claude-code) (Anthropic's CLI coding agent, running as Opus 4.7 with 1M context).
 
 The human — a Home Assistant user with no prior experience reverse-engineering network protocols — drove from their Mac, handled physical access to the plug, and verified each step in the real world. Claude Code did the investigation, packet analysis, cryptanalysis, Python implementation, and deployment scripting over SSH to the HAOS box.

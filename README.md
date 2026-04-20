@@ -114,6 +114,6 @@ hacs.json
 
 ## Credits
 
-Protocol reverse-engineering, implementation, tests, and this documentation by **[Claude Code](https://claude.com/claude-code)** (Anthropic's Opus 4.7), pair-programming with the repo owner. Built in ~3 hours on 2026-04-20 starting from a dead integration and no prior understanding of the device's protocol. See [`BUILD_STORY.md`](BUILD_STORY.md) for the full play-by-play.
+Protocol reverse-engineering, implementation, tests, and this documentation by **[Claude Code](https://claude.com/claude-code)** (Anthropic's Opus 4.7), pair-programming with the repo owner. Built in ~3 hours on 2026-04-20 starting from a dead integration and no prior understanding of the device's protocol. Read the full play-by-play: **[Cracking a pool pump's Wi-Fi protocol in an afternoon](https://kunalkhosla.github.io/blogs/2026/04/20/ecoplug-pool-pump.html)** (also mirrored as [`BUILD_STORY.md`](BUILD_STORY.md) in this repo).
 
 Protocol naming and the idea of "ECO Plug family" plug control inspired by the original [`rsnodgrass/pyecoplug`](https://github.com/rsnodgrass/pyecoplug) integration, which handled earlier firmware variants of these devices but no longer works on current firmware or current HA.
