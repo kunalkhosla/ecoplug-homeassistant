@@ -1,0 +1,11 @@
+{
+  "domain": "ecoplug",
+  "name": "ECO Plug (local replay)",
+  "version": "0.1.0",
+  "documentation": "https://github.com/kunalkhosla/ecoplug-homeassistant",
+  "issue_tracker": "https://github.com/kunalkhosla/ecoplug-homeassistant/issues",
+  "codeowners": ["@kunalkhosla"],
+  "dependencies": [],
+  "requirements": [],
+  "iot_class": "local_polling"
+}
