@@ -1,0 +1,11 @@
+title: ecoplug-homeassistant
+description: Reverse-engineering a 240V pool-pump smart plug for Home Assistant — the build story.
+theme: jekyll-theme-cayman
+show_downloads: false
+plugins:
+  - jekyll-relative-links
+relative_links:
+  enabled: true
+  collections: false
+include:
+  - BUILD_STORY.md
