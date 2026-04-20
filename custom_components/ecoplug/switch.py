@@ -14,6 +14,7 @@ Config:
 from __future__ import annotations
 
 import asyncio
+from datetime import timedelta
 import logging
 from typing import Any
 
@@ -31,6 +32,11 @@ from .protocol import State, get_state, set_state
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_NAME = "ECO Plug"
+
+# Platform default: query the plug every 10 seconds instead of HA's
+# switch-platform default of 30s. The exchange is one UDP send + one reply,
+# negligible network cost on a LAN.
+SCAN_INTERVAL = timedelta(seconds=10)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
