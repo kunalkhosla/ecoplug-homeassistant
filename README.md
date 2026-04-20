@@ -56,7 +56,12 @@ switch:
   - platform: ecoplug
     host: 192.168.0.87      # your plug's LAN IP — reserve it in DHCP
     name: Pool Pump
+    scan_interval: 10       # optional; seconds between state polls (default 10)
 ```
+
+`scan_interval` is standard HA — tune it for how fast you need external
+changes (toggles from the ECO Plugs app, physical button, etc.) to show up
+in HA. Smaller = faster sync but more UDP traffic. 5 is fine on a LAN.
 
 Restart HA again. The entity shows up as e.g. `switch.pool_pump`.
 
@@ -109,4 +114,6 @@ hacs.json
 
 ## Credits
 
-Protocol naming and packet layout inspired by the original [`rsnodgrass/pyecoplug`](https://github.com/rsnodgrass/pyecoplug) integration, which handled earlier firmware variants of these same devices.
+Protocol reverse-engineering, implementation, tests, and this documentation by **[Claude Code](https://claude.com/claude-code)** (Anthropic's Opus 4.7), pair-programming with the repo owner. Built in ~3 hours on 2026-04-20 starting from a dead integration and no prior understanding of the device's protocol. See [`BUILD_STORY.md`](BUILD_STORY.md) for the full play-by-play.
+
+Protocol naming and the idea of "ECO Plug family" plug control inspired by the original [`rsnodgrass/pyecoplug`](https://github.com/rsnodgrass/pyecoplug) integration, which handled earlier firmware variants of these devices but no longer works on current firmware or current HA.
