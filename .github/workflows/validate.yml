@@ -17,6 +17,9 @@ jobs:
         uses: hacs/action@main
         with:
           category: integration
+          # Ignore brand-assets check until we submit an icon to
+          # home-assistant/brands. Tracked in issue #2.
+          ignore: brands
 
   hassfest:
     name: Hassfest (HA integration validator)
