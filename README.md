@@ -13,7 +13,9 @@ Developed against a **DEWENWILS HOWT01A** (Amazon ASIN `B07PP2KNNH`, "Outdoor Wi
 
 ## What this integration does
 
-Speaks the plug's native local UDP protocol on **port 1022** — the same protocol the ECO Plugs phone app uses when the phone and plug are on the same LAN. All command packets are dynamically crafted with a fresh TXID, so the integration works for **any** plug on the LAN (not just a specific one whose packets were recorded).
+Speaks the plug's native local UDP protocol on **port 1022** — the same protocol the ECO Plugs phone app uses when the phone and plug are on the same LAN. All command packets are dynamically crafted with a fresh TXID.
+
+> **Each plug has its own identity.** Testing against a second physical HOWT01A showed that the plug validates both the 4-byte id at offset 12 *and* the 56-byte body, independently — packets carrying another plug's identity are silently dropped with no reply. So you must capture your own plug's identity once, with [`src/ecoplug/capture_identity.py`](src/ecoplug/capture_identity.py). The id turns out to be derivable from the MAC, but the body is not: it is absent from the plug's broadcast heartbeat and shows no derivation from the MAC. See [`notes/04-second-device.md`](notes/04-second-device.md) for the evidence, including which 37 of the 56 body bytes are universal and which 19 are not.
 
 - **Turn on / turn off** — craft and send a 152-byte UDP command, parse the reply's state byte.
 - **State polling** every 10 seconds.
@@ -47,6 +49,27 @@ Two entities of interest live in the repo:
 1. Copy `custom_components/ecoplug/` into your HA `/config/custom_components/` directory.
 2. Restart Home Assistant.
 
+### Capture your plug's identity (once)
+
+On the Home Assistant host (Linux, root), with your phone on the **same subnet**
+as the plug:
+
+```
+sudo python3 src/ecoplug/capture_identity.py --plug-ip 192.168.0.87 --iface eth0
+```
+
+Then open the ECO Plugs app and toggle the plug ON, then OFF. The script prints a
+ready-to-paste config block.
+
+It works by answering ARP for the plug's IP so the phone's packets come via HA,
+forwarding them on to the real plug as it goes — the plug still actuates and the
+app behaves normally, and every ARP cache it touches is restored on exit. Unlike
+the PCAPdroid recipe below, it needs nothing installed on the phone, so an iPhone
+works fine. Run it only on a network you administer.
+
+If your phone is on a VPN or a guest VLAN, the app falls back to the vendor cloud
+and there is no local packet to capture — get on the plug's own subnet first.
+
 ### Configure
 
 Add to `configuration.yaml`:
@@ -56,8 +79,18 @@ switch:
   - platform: ecoplug
     host: 192.168.0.87      # your plug's LAN IP — reserve it in DHCP
     name: Pool Pump
+    mac: "38:2b:78:1a:2b:3c"        # from capture_identity.py
+    command_body: "a1b2c3d4…"       # 112 hex chars, from capture_identity.py
+    query_body: "a1b2c3d4…"         # optional; defaults to command_body
     scan_interval: 10       # optional; seconds between state polls (default 10)
 ```
+
+`mac` supplies the 4-byte id at offset 12; give `device_id: "3c2b1a00"` directly
+instead if your plug's id turns out not to follow the MAC rule (the capture
+script tells you if so).
+
+Omitting the identity falls back to the original author's plug and logs a
+warning — that path only works on that one unit.
 
 `scan_interval` is standard HA — tune it for how fast you need external
 changes (toggles from the ECO Plugs app, physical button, etc.) to show up
@@ -87,9 +120,10 @@ Includes a byte-exact reproduction test: crafting with a captured TXID must prod
 
 ## Limitations / known issues
 
-- **State only updates on poll** (10-second interval) unless you tap the HA switch itself. When you toggle from the ECO Plugs app, HA picks up the change within ~10 seconds.
-- **The body's trailing 4 bytes in query packets** are still not fully understood (they vary per query in the captured app traffic). We use a fixed value that the plug accepts. If some future firmware revision validates that field strictly, queries may break.
-- **Only one device type validated** (DEWENWILS HOWT01A). Other ECO Plugs family members may differ.
+- **Every plug needs its identity captured once** — see above. There is no known way to derive the 56-byte body from the MAC or from the broadcast heartbeat; both were tried and neither works. A third device would help narrow this down.
+- **State only updates on poll** (10-second interval) unless you tap the HA switch itself. When you toggle from the ECO Plugs app, HA picks up the change within ~10 seconds. Note the plug also runs its own internal schedule and accepts commands from the vendor cloud, so HA is not the only thing driving the relay.
+- **The body's trailing 4 bytes in query packets** are still not fully understood (they vary per query in the captured app traffic). We use a fixed value that the plug accepts. On a second unit the query body was identical to the command body, so `query_body` is optional.
+- **Two units of one device type validated** (DEWENWILS HOWT01A ×2). Other ECO Plugs family members may differ. The reply trailer's offset already differs between these two, so treat fixed offsets past byte 80 with suspicion.
 
 ## Repository layout
 
@@ -100,6 +134,7 @@ custom_components/ecoplug/        # the HA integration
   switch.py                       # HA switch-platform wrapper
   __init__.py
 src/ecoplug/                      # standalone scripts used during dev
+  capture_identity.py             # learn YOUR plug's identity (no phone tooling)
   crafter.py                      # CLI: python3 crafter.py <ip> on|off|query
   analyze_body.py                 # decode every packet in a pcap
   validate_crafter.py             # offline: crafter ≡ captured packets
@@ -108,6 +143,7 @@ src/ecoplug/                      # standalone scripts used during dev
 tests/
   test_protocol.py
 notes/                            # protocol deep-dive + capture findings
+  04-second-device.md             # what a 2nd physical plug changed
 captures/                         # pcap files (gitignored)
 hacs.json
 ```
